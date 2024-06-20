@@ -101,7 +101,12 @@ class Game {
             // Reverse the top and bottom rows only
             const reversedMap = data.map.slice().reverse();
             // Update the game map
-            this.map.gameMap = reversedMap;
+            if (this.isPlayerBlack) {
+                this.map.gameMap = reversedMap;
+            }
+            else {
+                this.map.gameMap = data.map;
+            }
             // Toggle turn
             this.playerControl.isMyTurn = !data.isPlayerBlackTurn;
             // Redraw the board

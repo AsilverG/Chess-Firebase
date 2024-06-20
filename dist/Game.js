@@ -106,7 +106,7 @@ class Game {
             // } else {
             //   this.map.gameMap = data.map;
             // }
-            this.map.gameMap = data.map;
+            this.map.gameMap = reversedMap;
             // Toggle turn
             this.playerControl.isMyTurn = !data.isPlayerBlackTurn;
             // Redraw the board

@@ -23,10 +23,21 @@ class FirebaseClient {
     return this._db;
   }
 
+
+  // Allows the player to join a room
   public async joinRoom(roomId: string, playerId: string) {
     const roomRef = ref(this._db, `rooms/${roomId}`);
     const snapshot = await get(roomRef);
     let playerColor;
+  
+    // Check if the room already has two players
+    if (snapshot.exists()) {
+      const players = snapshot.val().players;
+      if (players && Object.keys(players).length >= 2) {
+        throw new Error("Room is full");
+      }
+    }
+  
     if (!snapshot.exists()) {
       playerColor = 'black';
       await set(roomRef, {
@@ -37,35 +48,50 @@ class FirebaseClient {
         players: {
           [playerId]: { color: playerColor }
         }
-      }
-    );
+      });
     } else {
       const players = snapshot.val().players;
       if (!players) {
-      playerColor = 'black';
-    } else if (Object.keys(players).length === 1) {
-      playerColor = players[Object.keys(players)[0]].color === 'black' ? 'white' : 'black';
-    } else if (Object.keys(players).length >= 2) {
-      throw new Error("Room is full");
-    } else {
+        playerColor = 'black';
+      } else if (Object.keys(players).length === 1) {
+        playerColor = players[Object.keys(players)[0]].color === 'black' ? 'white' : 'black';
+      }
+      // Ensure the player is added to the room only if it's not full
       await update(roomRef, {
         [`players/${playerId}`]: { color: playerColor }
       });
-      }
     }
-
-      // Set up onDisconnect to remove the player and room if the player leaves
-      const playerRef = ref(this._db, `rooms/${roomId}/players/${playerId}`);
-      onDisconnect(playerRef).remove().then(() => {
-          console.log(`${playerId} onDisconnect set up successfully.`);
-      }).catch(error => {
-          console.error("Error setting up onDisconnect:", error);
-      });
-
-      this.checkAndRemoveRoom(roomId);
-
-      return playerColor;
+  
+    // Set up onDisconnect to remove the player and room if the player leaves
+    const playerRef = ref(this._db, `rooms/${roomId}/players/${playerId}`);
+    onDisconnect(playerRef).remove().then(() => {
+      console.log(`${playerId} onDisconnect set up successfully.`);
+    }).catch(error => {
+      console.error("Error setting up onDisconnect:", error);
+    });
+  
+    this.checkAndRemoveRoom(roomId);
+  
+    return playerColor;
+  
   }
+  private async checkRoomFull(roomId: string) {
+    const roomRef = ref(this._db, `rooms/${roomId}`);
+    return new Promise((resolve, reject) => {
+      onValue(roomRef, (snapshot) => {
+        const players = snapshot.val()?.players;
+        if (Object.keys(players).length === 2) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      }, (error) => {
+        reject(error);
+      });
+    });
+  }
+  
+
 
   private async checkAndRemoveRoom(roomId: string) {
     const roomRef = ref(this._db, `rooms/${roomId}`);

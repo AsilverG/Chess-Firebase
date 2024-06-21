@@ -17,10 +17,18 @@ class FirebaseClient {
     get db() {
         return this._db;
     }
+    // Allows the player to join a room
     async joinRoom(roomId, playerId) {
         const roomRef = ref(this._db, `rooms/${roomId}`);
         const snapshot = await get(roomRef);
         let playerColor;
+        // Check if the room already has two players
+        if (snapshot.exists()) {
+            const players = snapshot.val().players;
+            if (players && Object.keys(players).length >= 2) {
+                throw new Error("Room is full");
+            }
+        }
         if (!snapshot.exists()) {
             playerColor = 'black';
             await set(roomRef, {
@@ -41,14 +49,10 @@ class FirebaseClient {
             else if (Object.keys(players).length === 1) {
                 playerColor = players[Object.keys(players)[0]].color === 'black' ? 'white' : 'black';
             }
-            else if (Object.keys(players).length >= 2) {
-                throw new Error("Room is full");
-            }
-            else {
-                await update(roomRef, {
-                    [`players/${playerId}`]: { color: playerColor }
-                });
-            }
+            // Ensure the player is added to the room only if it's not full
+            await update(roomRef, {
+                [`players/${playerId}`]: { color: playerColor }
+            });
         }
         // Set up onDisconnect to remove the player and room if the player leaves
         const playerRef = ref(this._db, `rooms/${roomId}/players/${playerId}`);
@@ -59,6 +63,22 @@ class FirebaseClient {
         });
         this.checkAndRemoveRoom(roomId);
         return playerColor;
+    }
+    async checkRoomFull(roomId) {
+        const roomRef = ref(this._db, `rooms/${roomId}`);
+        return new Promise((resolve, reject) => {
+            onValue(roomRef, (snapshot) => {
+                const players = snapshot.val()?.players;
+                if (Object.keys(players).length === 2) {
+                    resolve(true);
+                }
+                else {
+                    resolve(false);
+                }
+            }, (error) => {
+                reject(error);
+            });
+        });
     }
     async checkAndRemoveRoom(roomId) {
         const roomRef = ref(this._db, `rooms/${roomId}`);

@@ -11,14 +11,17 @@ class GameBoard {
         this.initializeBoard();
         this.drawMap();
     }
+    /** @type {number} The size of each grid square. */
     static gridSize = 90;
     //@ts-ignore
     gameMap;
     _tileMap = [];
+    /** @type {number} The number of rows on the board. */
     ROWS = 8;
     COLUMNS = 8;
     isPlayerBlack;
     colors = ["#769656", "#EEEED2"];
+    /** @type {string[][]} The initial grid configuration for black pieces. */
     BLACK_GRID = [
         ["R", "N", "B", "Q", "K", "B", "N", "R"],
         ["P", "P", "P", "P", "P", "P", "P", "P"],
@@ -29,6 +32,7 @@ class GameBoard {
         ["p", "p", "p", "p", "p", "p", "p", "p"],
         ["r", "n", "b", "q", "k", "b", "n", "r"],
     ];
+    /** @type {string[][]} The initial grid configuration for white pieces. */
     WHITE_GRID = [
         ["r", "n", "b", "q", "k", "b", "n", "r"],
         ["p", "p", "p", "p", "p", "p", "p", "p"],

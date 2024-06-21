@@ -15,6 +15,7 @@ class Game {
     playerControl;
     isPlayerBlack;
     roomId;
+    // Initial configuration of the board for black pieces
     BLACK_GRID = [
         ["R", "N", "B", "K", "Q", "B", "N", "R"],
         ["P", "P", "P", "P", "P", "P", "P", "P"],
@@ -25,6 +26,7 @@ class Game {
         ["p", "p", "p", "p", "p", "p", "p", "p"],
         ["r", "n", "b", "k", "q", "b", "n", "r"],
     ];
+    // Initial configuration of the board for white pieces
     WHITE_GRID = [
         ["r", "n", "b", "q", "k", "b", "n", "r"],
         ["p", "p", "p", "p", "p", "p", "p", "p"],
@@ -41,6 +43,12 @@ class Game {
         }
         return Game._instance;
     }
+    /**
+   * Starts the game with the specified configuration.
+   * @param {boolean} isPlayerBlack - Indicates if the player controls black pieces.
+   * @param {string} roomId - The room identifier for the game session.
+   * @returns {Promise<void>}
+   */
     async start(isPlayerBlack, roomId) {
         this.isPlayerBlack = isPlayerBlack;
         this.roomId = roomId;
@@ -78,6 +86,10 @@ class Game {
             }
         }
     }
+    /**
+   * Updates the local game state based on received data.
+   * @param {any} data - The data containing updated game state information.
+   */
     updateLocalGameState(data) {
         try {
             console.log("Received data for updating local game state:", data);
@@ -100,12 +112,6 @@ class Game {
             });
             // Reverse the top and bottom rows only
             const reversedMap = data.map.slice().reverse();
-            // // Update the game map
-            // if(!this.isPlayerBlack) {
-            //   this.map.gameMap = reversedMap;
-            // } else {
-            //   this.map.gameMap = data.map;
-            // }
             this.map.gameMap = reversedMap;
             // Toggle turn
             this.playerControl.isMyTurn = !data.isPlayerBlackTurn;

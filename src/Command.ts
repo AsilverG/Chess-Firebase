@@ -23,16 +23,21 @@ interface Command {
   execute(x: number, y: number): void;
 }
 
+
 abstract class HandleMouseClickCommand implements Command {
   protected mousePositionX: number = 0;
   protected mousePositionY: number = 0;
-
+    /**
+   * Assigns coordinates to the command.
+   * @param {number} x - The x-coordinate.
+   * @param {number} y - The y-coordinate.
+   * @returns {Command} - The command with assigned coordinates.
+   */
   public assignCoordinates(x: number, y: number): Command {
     this.mousePositionX = x;
     this.mousePositionY = y;
     return this;
   }
-
   abstract execute(x: number, y: number): void;
 }
 
@@ -61,13 +66,17 @@ abstract class MovePieceCommand implements Command {
   constructor() {}
 
   public execute(x: number, y: number): void {
+    //default: check 7 tiles for each direction
     this.checkPossibleMovements(x, y, Game.instance.map.ROWS - 1);
-    // new UpdatePositionToFirebaseCommand(Game.instance.blackPiecesOnTheBoard, Game.instance.whitePiecesOnTheBoard, Game.instance.map.gameMap).execute();
-
   }
 
   abstract getAllLegalMoves(): number[][];
-
+    /**
+   * Checks possible movements for the piece.
+   * @param {number} x - The x-coordinate.
+   * @param {number} y - The y-coordinate.
+   * @param {number} amounts - The number of possible moves.
+   */
   protected checkPossibleMovements(
     x: number,
     y: number,
@@ -101,7 +110,11 @@ abstract class MovePieceCommand implements Command {
   protected checkCastling(d: number, x: number, y: number): boolean {
     return 1 !== 1;
   }
-
+    /**
+   * Gets the starting coordinates and tile for the move.
+   * @param {number} x - The x-coordinate.
+   * @param {number} y - The y-coordinate.
+   */
   protected getStartingCoordinatesAndTile(x: number, y: number): void {
     this.x = Math.floor(x / GameBoard.gridSize);
     this.y = Math.floor(y / GameBoard.gridSize);
@@ -114,25 +127,28 @@ abstract class MovePieceCommand implements Command {
     this.x = this.coordinate[0];
     this.y = this.coordinate[1];
     this.pieceType = Game.instance.map.gameMap[this.y][this.x];
+
+    // get piece letter
     const TILE_TYPE: string = Game.instance.map.gameMap[this.y][this.x];
+
+    //check the color of the piece by comparing with its lower case
     this.isMyPieceBlack = TILE_TYPE === TILE_TYPE.toLowerCase();
     for (let n = 0; n < this.movementDirections.length; n++) {
-      // console.log(this.movementDirections.length)
       for (let i = 0; i < amounts; i++) {
-        // console.log(amounts)
         const NEW_X: number = this.x + (i + 1) * this.movementDirections[n][0];
         const NEW_Y: number = this.y + (i + 1) * this.movementDirections[n][1];
-        // console.log(NEW_Y,NEW_X)
         if (NEW_X < 0 || NEW_Y > 7 || NEW_X > 7 || NEW_Y < 0) break;
 
         //castling
         if (
+          //if king can move 2 tiles, its castling
           Math.abs(this.movementDirections[n][0]) === 2 &&
           TILE_TYPE.toLowerCase() === Pieces.KING
         ) {
           if (this.checkCastling(this.movementDirections[n][0], this.x, this.y))
             this.legalMovesCoordinates.push([NEW_X, NEW_Y]);
         } else if (this.canMove(NEW_X, NEW_Y)) {
+          //make sure your king is not in check after move or cannot go to the same tile as your other piece
           this.legalMovesCoordinates.push([NEW_X, NEW_Y]);
         }
         if (Game.instance.map.gameMap[NEW_Y][NEW_X] !== Pieces.EMPTY) break;
@@ -148,51 +164,41 @@ abstract class MovePieceCommand implements Command {
         Game.instance.map.gameMap[y][x].toLowerCase()) ===
         this.isMyPieceBlack
     ) {
-      // console.log(Game.instance.map.gameMap[y][x], y, x, this.isMyPieceBlack)
       return false;
     }
-    // console.log(this.isMyKingInCheck(x, y))
     if (this.isMyKingInCheck(x, y)) return false;
     return true;
   }
 
   protected isMyKingInCheck(x: number, y: number): boolean {
     this.copyBoard();
-    this.tempGameMap[this.y][this.x] = Pieces.EMPTY; // Simulate move by emptying current position
-    this.tempGameMap[y][x] = this.pieceType; // Place piece on new position
+    // Simulate move by emptying current position
+    this.tempGameMap[this.y][this.x] = Pieces.EMPTY; 
+    this.tempGameMap[y][x] = this.pieceType; 
+    // Place piece on new position
     const kingPosition = this.findKingPosition();
-    // console.log(kingPosition);
-    // console.log("Temporary game map initialized:", this.tempGameMap);
-    return this.isSquareAttacked(kingPosition[1], kingPosition[0]); // 3,5
+    return this.isSquareAttacked(kingPosition[1], kingPosition[0]);
   }
 
+  /**
+   * copy the game map to silmulate the checks and legal moves
+   */
   protected copyBoard(): void {
     this.tempGameMap = [];
     for (let r = 0; r < Game.instance.map.ROWS; r++) {
-      this.tempGameMap[r] = []; // Initialize each row as an empty array
+      // Initialize each row as an empty array
+      this.tempGameMap[r] = []; 
       for (let c = 0; c < Game.instance.map.COLUMNS; c++) {
         this.tempGameMap[r][c] = Game.instance.map.gameMap[r][c];
       }
     }
-    // console.log("Temporary game map initialized:", this.tempGameMap);
   }
 
   protected findKingPosition(): number[] {
     let isMyKingBlack: boolean;
-
     for (let r = 0; r < this.tempGameMap.length; r++) {
       for (let c = 0; c < this.tempGameMap[r].length; c++) {
         const PIECE: string = this.tempGameMap[r][c];
-        // if(PIECE.toLowerCase() !== Pieces.KING || !this.isMyPieceBlack || PIECE !== PIECE.toLowerCase() ){
-        //   continue;
-        // } else if (PIECE.toLowerCase() !== Pieces.KING || this.isMyPieceBlack || PIECE !== PIECE.toUpperCase()){
-        //   continue;
-        // }
-        // console.log(PIECE.toLowerCase());
-        // console.log(!this.isMyPieceBlack);
-        // console.log(PIECE );
-        // console.log(PIECE.toLowerCase());
-        // return [r,c];
         if (PIECE.toLowerCase() === Pieces.KING) {
           isMyKingBlack = PIECE === PIECE.toLowerCase();
           if (isMyKingBlack && this.isMyPieceBlack) {
@@ -206,6 +212,12 @@ abstract class MovePieceCommand implements Command {
     throw new Error("No King");
   }
 
+   /**
+   * Checks if a square is attacked by an opponent's piece.
+   * @param {number} x - The x-coordinate.
+   * @param {number} y - The y-coordinate.
+   * @returns {boolean} - True if the square is attacked, false otherwise.
+   */
   protected isSquareAttacked(x: number, y: number): boolean {
     let check: boolean = false;
 
@@ -236,6 +248,7 @@ abstract class MovePieceCommand implements Command {
       [-1, -2],
     ];
 
+    // checking for diagonal attacks
     for (let n = 0; n < DIAGONAL_ATTACKS.length; n++) {
       for (let i = 0; i < 7; i++) {
         const CHECK_X: number = x + (i + 1) * DIAGONAL_ATTACKS[n][0];
@@ -264,11 +277,8 @@ abstract class MovePieceCommand implements Command {
                 return check;
               }
             }
-            // console.log("pawn");
           }
           if (DIAGONAL_ATTACKERS.includes(PIECE.toLowerCase())) {
-            // console.log(PIECE);
-            // console.log("dia");
             check = true;
             return check;
           }
@@ -277,6 +287,7 @@ abstract class MovePieceCommand implements Command {
       }
     }
 
+    // checking for horizontal and vertical attacks
     for (let n = 0; n < STRAIGHT_ATTACKS.length; n++) {
       for (let i = 0; i < 7; i++) {
         const CHECK_X: number = x + (i + 1) * STRAIGHT_ATTACKS[n][0];
@@ -291,7 +302,6 @@ abstract class MovePieceCommand implements Command {
             return check;
           }
           if (STRAIGHT_ATTACKERS.includes(PIECE.toLowerCase())) {
-            // console.log("str")
             check = true;
             return check;
           }
@@ -300,6 +310,7 @@ abstract class MovePieceCommand implements Command {
       }
     }
 
+    // check for knights
     for (let i = 0; i < KNIGHT_ATTACKS.length; i++) {
       const CHECK_X: number = x + KNIGHT_ATTACKS[i][0];
       const CHECK_Y: number = y + KNIGHT_ATTACKS[i][1];
@@ -307,14 +318,13 @@ abstract class MovePieceCommand implements Command {
         const PIECE: string = this.tempGameMap[CHECK_Y][CHECK_X];
         if (!((PIECE === PIECE.toLowerCase()) === this.isMyPieceBlack)) {
           if (PIECE.toLowerCase() === Pieces.KNIGHT) {
-            // console.log("kni")
             check = true;
             return check;
           }
         }
       }
     }
-    console.log(`RETURNNING        ${check}`);
+    // console.log(`RETURNNING        ${check}`);
     return check;
   }
 
@@ -335,17 +345,19 @@ abstract class MovePieceCommand implements Command {
         }
       }
     }
+
+    alert("Game Over");
+    
     this.copyBoard();
 
-    // change it later
     this.isMyPieceBlack = !this.isMyPieceBlack;
     const kingPosition = this.findKingPosition();
-    console.log(kingPosition);
-    // console.log("Temporary game map initialized:", this.tempGameMap);
     if (this.isSquareAttacked(kingPosition[1], kingPosition[0])) {
       console.log("Checkmate");
+      alert("Checkmate");
     } else {
       console.log("Stalemate");
+      alert("Stalemate");
     }
     return legalMoves;
   }
@@ -361,8 +373,6 @@ class MoveBishopCommand extends MovePieceCommand {
 
   public execute(x: number, y: number): void {
     this.checkPossibleMovements(x, y, Game.instance.map.ROWS - 1);
-    // new UpdatePositionToFirebaseCommand(Game.instance.blackPiecesOnTheBoard, Game.instance.whitePiecesOnTheBoard, Game.instance.map.gameMap).execute();
-
   }
 
   public getAllLegalMoves(): number[][] {
@@ -380,8 +390,6 @@ class MoveRookCommand extends MovePieceCommand {
 
   public execute(x: number, y: number): void {
     this.checkPossibleMovements(x, y, Game.instance.map.ROWS - 1);
-    // new UpdatePositionToFirebaseCommand(Game.instance.blackPiecesOnTheBoard, Game.instance.whitePiecesOnTheBoard, Game.instance.map.gameMap).execute();
-
   }
 
   public getAllLegalMoves(): number[][] {
@@ -403,8 +411,7 @@ class MoveQueenCommand extends MovePieceCommand {
 
   public execute(x: number, y: number): void {
     this.checkPossibleMovements(x, y, Game.instance.map.ROWS - 1);
-    // new UpdatePositionToFirebaseCommand(Game.instance.blackPiecesOnTheBoard, Game.instance.whitePiecesOnTheBoard, Game.instance.map.gameMap).execute();
-
+  
   }
   public getAllLegalMoves(): number[][] {
     return this.legalMovesCoordinates;
@@ -425,9 +432,8 @@ class MoveKnightCommand extends MovePieceCommand {
 
   public execute(x: number, y: number): void {
     this.checkPossibleMovements(x, y, 1);
-    // new UpdatePositionToFirebaseCommand(Game.instance.blackPiecesOnTheBoard, Game.instance.whitePiecesOnTheBoard, Game.instance.map.gameMap).execute();
-
   }
+
   public getAllLegalMoves(): number[][] {
     return this.legalMovesCoordinates;
   }
@@ -449,8 +455,6 @@ class MoveKingCommand extends MovePieceCommand {
 
   public execute(x: number, y: number): void {
     this.checkPossibleMovements(x, y, 1);
-    // new UpdatePositionToFirebaseCommand(Game.instance.blackPiecesOnTheBoard, Game.instance.whitePiecesOnTheBoard, Game.instance.map.gameMap).execute();
-
   }
 
   public checkCastling(d: number, x: number, y: number): boolean {
@@ -509,6 +513,7 @@ class MoveKingCommand extends MovePieceCommand {
   }
 }
 
+// Allowing pawn to move 
 class MovePawnCommand extends MovePieceCommand {
   constructor(
     readonly moveDownward: boolean,
@@ -521,7 +526,7 @@ class MovePawnCommand extends MovePieceCommand {
   private firstMove: boolean = true;
 
   private checkPossiblePawnMoves(y: number): number[][] {
-    console.log(y)
+    console.log(y);
     if(y !== GameBoard.gridSize * 6) {
       this.firstMove = false;
     } else if (y !== GameBoard.gridSize * 1 && y !== GameBoard.gridSize * 6){
@@ -570,6 +575,7 @@ class MovePawnCommand extends MovePieceCommand {
         if (this.canMove(NEW_X, NEW_Y)) {
           this.legalMovesCoordinates.push([NEW_X, NEW_Y]);
         } else {
+          
           n++;
           break;
         }
@@ -615,9 +621,7 @@ class MovePawnCommand extends MovePieceCommand {
 
   private checkEnPassant(x: number, y: number): boolean {
     const CHECK_X: number = x * GameBoard.gridSize;
-    const CHECK_Y: number =
-      (y - this.captureDiagonally[0][1]) * GameBoard.gridSize;
-
+    const CHECK_Y: number = (y - this.captureDiagonally[0][1]) * GameBoard.gridSize;
     Game.instance.playerControl.toggleBlackToMove();
     const CHECK_PIECE: ChessPiece = Game.instance.playerControl.choosePiece(
       CHECK_X,
@@ -626,6 +630,7 @@ class MovePawnCommand extends MovePieceCommand {
     Game.instance.playerControl.toggleBlackToMove();
 
     if (CHECK_PIECE === undefined) return false;
+    //only for pawn
     if (
       CHECK_PIECE.pieceType.toLowerCase() !== Pieces.PAWN ||
       !CHECK_PIECE.enPassantAvailable
@@ -639,6 +644,7 @@ class MovePawnCommand extends MovePieceCommand {
     return true;
   }
 
+  // update enpassant
   public enPassantUpdate(x: number, y: number) {
     Game.instance.map.gameMap[y - this.captureDiagonally[0][1]][x] =
       Pieces.EMPTY;
@@ -660,57 +666,13 @@ class MovePawnCommand extends MovePieceCommand {
 
   public execute(x: number, y: number): void {
     this.movementDirections = this.checkPossiblePawnMoves(y);
-    // console.log(this.movementDirections);
-    // console.log(this.parentPiece.firstMove)
     this.checkPossibleMovements(x, y, 1);
-    // new UpdatePositionToFirebaseCommand(Game.instance.blackPiecesOnTheBoard, Game.instance.whitePiecesOnTheBoard, Game.instance.map.gameMap).execute();
-    // console.log(this.legalMovesCoordinates)
   }
 
   public getAllLegalMoves(): number[][] {
     return this.legalMovesCoordinates;
   }
 }
-
-
-// class UpdatePositionToFirebaseCommand implements Command {
-//   constructor(private blackPieces: ChessPiece[], private whitePieces: ChessPiece[], private map: string[][]) {}
-
-//   public execute(): void {
-//     const blackPiecesData = this.blackPieces.map(piece => piece.toObject());
-//     const whitePiecesData = this.whitePieces.map(piece => piece.toObject());
-
-//     // Validate data to ensure no undefined values
-//     validateData(blackPiecesData);
-//     validateData(whitePiecesData);
-
-//     update(ref(FirebaseClient.instance.db, `/players`), {
-//       blackPieces: blackPiecesData,
-//       whitePieces: whitePiecesData,
-//       map: this.map,
-//     }).then(() => {
-//       console.log("Data successfully written to Firebase");
-//     }).catch((error) => {
-//       console.error("Error writing to Firebase:", error);
-//     });
-//   }
-// }
-
-// function validateData(obj: any) {
-//   const stack = [obj];
-//   while (stack.length) {
-//     const currentObj = stack.pop();
-//     for (let key in currentObj) {
-//       if (currentObj[key] === undefined) {
-//         throw new Error(`Undefined value found at ${key}`);
-//       } else if (typeof currentObj[key] === 'object' && currentObj[key] !== null) {
-//         stack.push(currentObj[key]);
-//       }
-//     }
-//   }
-// }
-
-
 
 
 export {
@@ -729,6 +691,10 @@ export {
 
 
 
+/**
+ * gpt helps
+ * sending all pieces, map grid and room id through firebase
+ */
 class UpdatePositionToFirebaseCommand implements Command {
   constructor(private blackPieces: ChessPiece[], private whitePieces: ChessPiece[], private map: string[][], private roomId: string) {}
 
@@ -737,8 +703,8 @@ class UpdatePositionToFirebaseCommand implements Command {
     const whitePiecesData = this.whitePieces.map(piece => piece.toObject());
 
     // Validate data to ensure no undefined values
-    validateData(blackPiecesData);
-    validateData(whitePiecesData);
+    this.validateData(blackPiecesData);
+    this.validateData(whitePiecesData);
 
     const isPlayerBlackTurn = !Game.instance.playerControl.isMyTurn; // Toggle turn
 
@@ -753,17 +719,17 @@ class UpdatePositionToFirebaseCommand implements Command {
       console.error("Error writing to Firebase:", error);
     });
   }
-}
 
-function validateData(obj: any) {
-  const stack = [obj];
-  while (stack.length) {
-    const currentObj = stack.pop();
-    for (let key in currentObj) {
-      if (currentObj[key] === undefined) {
-        throw new Error(`Undefined value found at ${key}`);
-      } else if (typeof currentObj[key] === 'object' && currentObj[key] !== null) {
-        stack.push(currentObj[key]);
+  private  validateData(obj: any) {
+    const stack = [obj];
+    while (stack.length) {
+      const currentObj = stack.pop();
+      for (let key in currentObj) {
+        if (currentObj[key] === undefined) {
+          throw new Error(`Undefined value found at ${key}`);
+        } else if (typeof currentObj[key] === 'object' && currentObj[key] !== null) {
+          stack.push(currentObj[key]);
+        }
       }
     }
   }
@@ -772,10 +738,7 @@ function validateData(obj: any) {
 
 
 
-
-
-
-// Listening for game updates
+// gpt - Listening for game updates
 function listenForGameUpdates() {
   const dbRef = ref(FirebaseClient.instance.db, `/gameState`);
 
@@ -790,24 +753,6 @@ function listenForGameUpdates() {
     }
   });
 }
-
-// function updateLocalGameState(data: any) {
-  
-//   // Update pieces on the board
-//   Game.instance.blackPiecesOnTheBoard = data.blackPieces.map((pieceData: any) => BlackPieceFactory.make(pieceData.pieceType as Pieces, pieceData.x, pieceData.y, pieceData.firstMove));
-//   Game.instance.whitePiecesOnTheBoard = data.whitePieces.map((pieceData: any) => WhitePieceFactory.make(pieceData.pieceType as Pieces, pieceData.x, pieceData.y, pieceData.firstMove));
-  
-//   // Update game map
-//   Game.instance.map.gameMap = data.map;
-//   console.log(data.map)
-
-//   // Toggle turn
-//   Game.instance.playerControl.isMyTurn = !data.isPlayerBlackTurn;
-
-//   // Redraw the board
-//   Game.instance.map.drawMap();
-//   Game.instance.drawAll();
-// }
 
 // Call the function to start listening for updates
 listenForGameUpdates();

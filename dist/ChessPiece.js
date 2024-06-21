@@ -13,7 +13,9 @@ class ChessPiece extends RectangularGameObject {
         return this._isPieceBlack;
     }
     // abstract getLegalMoves(): number[][];
+    /** @type {boolean} Indicates if it is the first move for the piece. */
     firstMove = true;
+    /** @type {boolean} Indicates if en passant is available for the piece. */
     enPassantAvailable = false;
     drawSelf() {
         if (this.img.complete) {
@@ -37,6 +39,10 @@ class ChessPiece extends RectangularGameObject {
     get pieceType() {
         return this._pieceType;
     }
+    /**
+    * Sets the type of the chess piece.
+    * @param {string} piece - The type of the piece.
+    */
     set pieceType(piece) {
         if (Object.values(Pieces).includes(piece.toLowerCase())) {
             this._pieceType = piece;
@@ -45,6 +51,10 @@ class ChessPiece extends RectangularGameObject {
             this._pieceType = Pieces.EMPTY;
         }
     }
+    /**
+   * Converts the chess piece to a plain object representation.
+   * @returns {Object} The object representation of the chess piece.
+   */
     toObject() {
         console.log(this.firstMove);
         return {

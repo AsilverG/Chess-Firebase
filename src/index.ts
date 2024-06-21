@@ -23,16 +23,29 @@ class Driver {
     window.addEventListener("beforeunload", () => this.leaveRoom());
   }
 
+  // Allows user to create a new room
   private createRoom() {
     this.roomId = Math.random().toString(36).substr(2, 9); // Generate a random room ID
     this.joinRoomAndStart(this.roomId, this.playerId, true);
     alert(`Room created with password: ${this.roomId}`);
+    document.getElementById('chess-board').style.display = 'block';
+    document.getElementById('create-room').style.display = 'none';
+    document.getElementById('room-password').style.display = 'none';
+    document.getElementById('join-room').style.display = 'none';
+
   }
 
+  // Allows user to join an existing room
   private joinRoom() {
     const roomPasswordInput = document.getElementById("room-password") as HTMLInputElement;
     const roomId = roomPasswordInput.value;
     if (roomId) {
+      document.getElementById('chess-board').style.display = 'block';
+      document.getElementById('create-room').style.display = 'none';
+      document.getElementById('room-password').style.display = 'none';
+      document.getElementById('join-room').style.display = 'none';
+
+
       this.roomId = roomId;
       this.joinRoomAndStart(this.roomId, this.playerId, false);
     } else {
@@ -40,6 +53,7 @@ class Driver {
     }
   }
 
+  // Allows the player to join a room
   private async joinRoomAndStart(roomId: string, playerId: string, isCreating: boolean) {
     try {
       const color = await FirebaseClient.instance.joinRoom(roomId, playerId);
@@ -59,12 +73,15 @@ class Driver {
     }
   }
 
+
   private listenForGameUpdates() {
     FirebaseClient.instance.listenForGameUpdates(this.roomId, (data) => {
       Game.instance.updateLocalGameState(data);
     });
   }
 
+
+  // Allows the player to leave the room
   private async leaveRoom() {
     const roomId = this.roomId;
     const playerId = this.playerId;

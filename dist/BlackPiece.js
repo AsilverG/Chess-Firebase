@@ -2,13 +2,34 @@ import { GameBoard } from "./Board.js";
 import { MoveBishopCommand, MoveKingCommand, MoveKnightCommand, MovePawnCommand, MoveQueenCommand, MoveRookCommand, } from "./Command.js";
 import { Game } from "./Game.js";
 import ChessPiece from "./ChessPiece.js";
+/**
+ * Abstract class representing a black chess piece.
+ * @abstract
+ * @extends ChessPiece
+ */
 class BlackPiece extends ChessPiece {
+    /**
+   * Creates an instance of BlackPiece.
+   * @param {number} x - The x-coordinate of the piece.
+   * @param {number} y - The y-coordinate of the piece.
+   * @param {boolean} firstMove - Indicates if it is the piece's first move.
+   */
     constructor(x, y, firstMove) {
         super(x, y, "black", GameBoard.gridSize, GameBoard.gridSize, firstMove);
         this._isPieceBlack = true;
     }
 }
+/**
+ * Class representing a black pawn.
+ * @extends BlackPiece
+ */
 class BlackPawn extends BlackPiece {
+    /**
+   * Creates an instance of BlackPawn.
+   * @param {number} x - The x-coordinate of the pawn.
+   * @param {number} y - The y-coordinate of the pawn.
+   * @param {boolean} firstMove - Indicates if it is the pawn's first move.
+   */
     constructor(x, y, firstMove) {
         super(x, y, firstMove);
         this.img.src = `imgs/Black_Pawn.png`;
@@ -22,6 +43,12 @@ class BlackPawn extends BlackPiece {
     }
 }
 class BlackKing extends BlackPiece {
+    /**
+   * Creates an instance of BlackKing.
+   * @param {number} x - The x-coordinate of the king.
+   * @param {number} y - The y-coordinate of the king.
+   * @param {boolean} firstMove - Indicates if it is the king's first move.
+   */
     constructor(x, y, firstMove) {
         super(x, y, firstMove);
         this.img.src = `imgs/Black_King.png`;
@@ -35,6 +62,12 @@ class BlackKing extends BlackPiece {
     }
 }
 class BlackQueen extends BlackPiece {
+    /**
+   * Creates an instance of BlackQueen.
+   * @param {number} x - The x-coordinate of the queen.
+   * @param {number} y - The y-coordinate of the queen.
+   * @param {boolean} firstMove - Indicates if it is the queen's first move.
+   */
     constructor(x, y, firstMove) {
         super(x, y, firstMove);
         this.img.src = `imgs/Black_Queen.png`;
@@ -48,6 +81,12 @@ class BlackQueen extends BlackPiece {
     }
 }
 class BlackKnight extends BlackPiece {
+    /**
+   * Creates an instance of BlackKnight.
+   * @param {number} x - The x-coordinate of the knight.
+   * @param {number} y - The y-coordinate of the knight.
+   * @param {boolean} firstMove - Indicates if it is the knight's first move.
+   */
     constructor(x, y, firstMove) {
         super(x, y, firstMove);
         this.img.src = `imgs/Black_Knight.png`;
@@ -61,6 +100,12 @@ class BlackKnight extends BlackPiece {
     }
 }
 class BlackRook extends BlackPiece {
+    /**
+   * Creates an instance of BlackRook.
+   * @param {number} x - The x-coordinate of the rook.
+   * @param {number} y - The y-coordinate of the rook.
+   * @param {boolean} firstMove - Indicates if it is the rook's first move.
+   */
     constructor(x, y, firstMove) {
         super(x, y, firstMove);
         this.img.src = `imgs/Black_Rook.png`;
@@ -74,6 +119,12 @@ class BlackRook extends BlackPiece {
     }
 }
 class BlackBishop extends BlackPiece {
+    /**
+   * Creates an instance of BlackBishop.
+   * @param {number} x - The x-coordinate of the bishop.
+   * @param {number} y - The y-coordinate of the bishop.
+   * @param {boolean} firstMove - Indicates if it is the bishop's first move.
+   */
     constructor(x, y, firstMove) {
         super(x, y, firstMove);
         this.img.src = `imgs/Black_Bishop.png`;

@@ -16,6 +16,7 @@ import {
   UpdatePositionToFirebaseCommand
 } from "./Command.js";
 
+//Class representing player control logic for the chess game.
 class PlayerControl {
   public selectedPiece: ChessPiece;
   protected mousePositionX: number = 0;
@@ -43,11 +44,19 @@ class PlayerControl {
     );
   }
 
+    /**
+   * Assigns a new mouse click command.
+   * @param {HandleMouseClickCommand} c - The command to assign.
+   */
   public assignMouseClickCommand(c: HandleMouseClickCommand) {
     console.log("assigning mouse click command");
     this.mouseClickCommand = c;
   }
 
+    /**
+   * Handles mouse click event on the canvas.
+   * @param {MouseEvent} event - The mouse event object.
+   */
   private handleMouseClickEvent(event: MouseEvent) {
     const MOUSE_X: number = event.clientX;
     const MOUSE_Y: number = event.clientY;
@@ -94,6 +103,11 @@ class PlayerControl {
     this.isMyTurn = !this.isMyTurn;
   }
 
+    /**
+   * Handles mouse click interaction in the game.
+   * @param {number} x - The x-coordinate of the click.
+   * @param {number} y - The y-coordinate of the click.
+   */
   public handleMouseClick(x: number, y: number): void {
     if (this.isMyTurn) {
       if (!this.isMovingPiece) {
@@ -116,6 +130,12 @@ class PlayerControl {
     }
   }
 
+   /**
+   * Chooses the chess piece based on the mouse click coordinates.
+   * @param {number} x - The x-coordinate of the click.
+   * @param {number} y - The y-coordinate of the click.
+   * @returns {ChessPiece} The selected chess piece.
+   */
   public choosePiece(x: number, y: number): ChessPiece {
     if (Game.instance.isPlayerBlack) {
       for (let i = 0; i < Game.instance.blackPiecesOnTheBoard.length; i++) {
@@ -134,6 +154,11 @@ class PlayerControl {
     }
   }
 
+    /**
+   * Moves the selected piece to the specified coordinates.
+   * @param {number} x - The x-coordinate of the destination.
+   * @param {number} y - The y-coordinate of the destination.
+   */
   private movePiece(x: number, y: number) {
     for (let i = 0; i < this.possibleTiles.length; i++) {
       const MOVEABLE_X: number = this.possibleTiles[i][0];
@@ -271,6 +296,12 @@ class PlayerControl {
     return WhitePieceFactory.make(promoteTo.toLowerCase() as Pieces, x, y, false);
   }
 
+    /**
+   * Handles capturing of opponent's pieces.
+   * @param {number} x - The x-coordinate of the captured piece.
+   * @param {number} y - The y-coordinate of the captured piece.
+   * @param {boolean} capturingWhitePiece - Indicates if the capturing piece is white.
+   */
   public capturing(x: number, y: number, capturingWhitePiece: boolean): void {
     console.log("cap");
     if (capturingWhitePiece) {
@@ -304,7 +335,7 @@ class PlayerControl {
   }
 }
 
-// Example HandleMouseClickCommand implementation
+
 class MainGameMouseClickedEventHandlerCommand extends HandleMouseClickCommand {
   private playerControl: PlayerControl;
 

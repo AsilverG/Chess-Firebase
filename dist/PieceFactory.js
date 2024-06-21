@@ -2,6 +2,15 @@ import { BlackBishop, BlackKing, BlackKnight, BlackPawn, BlackQueen, BlackRook, 
 import { Pieces } from "./Board.js";
 import { WhiteBishop, WhiteKing, WhiteKnight, WhitePawn, WhiteQueen, WhiteRook, } from "./WhitePiece.js";
 class BlackPieceFactory {
+    /**
+   * Creates a black chess piece based on the provided piece type.
+   * @param {Pieces} type - The type of the piece to create.
+   * @param {number} x - The initial x-coordinate of the piece.
+   * @param {number} y - The initial y-coordinate of the piece.
+   * @param {boolean} firstMove - Indicates if it's the piece's first move.
+   * @returns {BlackPiece} The created black chess piece.
+   * @throws {Error} If an unknown piece type is provided.
+   */
     static make(type, x, y, firstMove) {
         // console.log(`Creating Black Piece: ${type}, x: ${x}, y: ${y}`);
         switch (type) {
@@ -23,6 +32,15 @@ class BlackPieceFactory {
     }
 }
 class WhitePieceFactory {
+    /**
+   * Creates a white chess piece based on the provided piece type.
+   * @param {Pieces} type - The type of the piece to create.
+   * @param {number} x - The initial x-coordinate of the piece.
+   * @param {number} y - The initial y-coordinate of the piece.
+   * @param {boolean} firstMove - Indicates if it's the piece's first move.
+   * @returns {WhitePiece} The created white chess piece.
+   * @throws {Error} If an unknown piece type is provided.
+   */
     static make(type, x, y, firstMove) {
         // console.log(`Creating White Piece: ${type}, x: ${x}, y: ${y}`);
         switch (type.toLowerCase()) {

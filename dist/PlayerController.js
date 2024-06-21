@@ -3,6 +3,7 @@ import { Canvas } from "./Canvas.js";
 import { Game } from "./Game.js";
 import { BlackPieceFactory, WhitePieceFactory } from "./PieceFactory.js";
 import { HandleMouseClickCommand, UpdatePositionToFirebaseCommand } from "./Command.js";
+//Class representing player control logic for the chess game.
 class PlayerControl {
     selectedPiece;
     mousePositionX = 0;
@@ -21,10 +22,18 @@ class PlayerControl {
         const canvas = Canvas.instance.screen;
         canvas.addEventListener("mouseup", (event) => this.handleMouseClickEvent(event));
     }
+    /**
+   * Assigns a new mouse click command.
+   * @param {HandleMouseClickCommand} c - The command to assign.
+   */
     assignMouseClickCommand(c) {
         console.log("assigning mouse click command");
         this.mouseClickCommand = c;
     }
+    /**
+   * Handles mouse click event on the canvas.
+   * @param {MouseEvent} event - The mouse event object.
+   */
     handleMouseClickEvent(event) {
         const MOUSE_X = event.clientX;
         const MOUSE_Y = event.clientY;
@@ -64,6 +73,11 @@ class PlayerControl {
     toggleTurn() {
         this.isMyTurn = !this.isMyTurn;
     }
+    /**
+   * Handles mouse click interaction in the game.
+   * @param {number} x - The x-coordinate of the click.
+   * @param {number} y - The y-coordinate of the click.
+   */
     handleMouseClick(x, y) {
         if (this.isMyTurn) {
             if (!this.isMovingPiece) {
@@ -87,6 +101,12 @@ class PlayerControl {
             }
         }
     }
+    /**
+    * Chooses the chess piece based on the mouse click coordinates.
+    * @param {number} x - The x-coordinate of the click.
+    * @param {number} y - The y-coordinate of the click.
+    * @returns {ChessPiece} The selected chess piece.
+    */
     choosePiece(x, y) {
         if (Game.instance.isPlayerBlack) {
             for (let i = 0; i < Game.instance.blackPiecesOnTheBoard.length; i++) {
@@ -105,6 +125,11 @@ class PlayerControl {
             }
         }
     }
+    /**
+   * Moves the selected piece to the specified coordinates.
+   * @param {number} x - The x-coordinate of the destination.
+   * @param {number} y - The y-coordinate of the destination.
+   */
     movePiece(x, y) {
         for (let i = 0; i < this.possibleTiles.length; i++) {
             const MOVEABLE_X = this.possibleTiles[i][0];
@@ -193,6 +218,12 @@ class PlayerControl {
             return BlackPieceFactory.make(promoteTo, x, y, false);
         return WhitePieceFactory.make(promoteTo.toLowerCase(), x, y, false);
     }
+    /**
+   * Handles capturing of opponent's pieces.
+   * @param {number} x - The x-coordinate of the captured piece.
+   * @param {number} y - The y-coordinate of the captured piece.
+   * @param {boolean} capturingWhitePiece - Indicates if the capturing piece is white.
+   */
     capturing(x, y, capturingWhitePiece) {
         console.log("cap");
         if (capturingWhitePiece) {
@@ -222,7 +253,6 @@ class PlayerControl {
         this.selectedPiece.movementCommand.execute(this.selectedPiece.x, this.selectedPiece.y);
     }
 }
-// Example HandleMouseClickCommand implementation
 class MainGameMouseClickedEventHandlerCommand extends HandleMouseClickCommand {
     playerControl;
     constructor(playerControl) {

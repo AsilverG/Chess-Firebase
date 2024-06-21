@@ -18,7 +18,10 @@ abstract class ChessPiece extends RectangularGameObject {
   abstract updateSelf(): void;
   // abstract getLegalMoves(): number[][];
 
+
+    /** @type {boolean} Indicates if it is the first move for the piece. */
   public firstMove: boolean = true;
+    /** @type {boolean} Indicates if en passant is available for the piece. */
   public enPassantAvailable: boolean = false;
 
   public drawSelf() {
@@ -54,6 +57,10 @@ abstract class ChessPiece extends RectangularGameObject {
     return this._pieceType;
   }
 
+   /**
+   * Sets the type of the chess piece.
+   * @param {string} piece - The type of the piece.
+   */
   protected set pieceType(piece: string) {
     if (Object.values(Pieces).includes(piece.toLowerCase() as Pieces)) {
       this._pieceType = piece;
@@ -64,6 +71,10 @@ abstract class ChessPiece extends RectangularGameObject {
 
   abstract getLegalMoves(): number[][];
 
+    /**
+   * Converts the chess piece to a plain object representation.
+   * @returns {Object} The object representation of the chess piece.
+   */
   public toObject() {
     console.log(this.firstMove)
     return {

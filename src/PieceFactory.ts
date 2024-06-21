@@ -19,6 +19,15 @@ import {
 } from "./WhitePiece.js";
 
 class BlackPieceFactory {
+    /**
+   * Creates a black chess piece based on the provided piece type.
+   * @param {Pieces} type - The type of the piece to create.
+   * @param {number} x - The initial x-coordinate of the piece.
+   * @param {number} y - The initial y-coordinate of the piece.
+   * @param {boolean} firstMove - Indicates if it's the piece's first move.
+   * @returns {BlackPiece} The created black chess piece.
+   * @throws {Error} If an unknown piece type is provided.
+   */
   public static make(type: Pieces, x: number, y: number, firstMove: boolean): BlackPiece {
     // console.log(`Creating Black Piece: ${type}, x: ${x}, y: ${y}`);
     switch (type) {
@@ -41,6 +50,15 @@ class BlackPieceFactory {
 }
 
 class WhitePieceFactory {
+    /**
+   * Creates a white chess piece based on the provided piece type.
+   * @param {Pieces} type - The type of the piece to create.
+   * @param {number} x - The initial x-coordinate of the piece.
+   * @param {number} y - The initial y-coordinate of the piece.
+   * @param {boolean} firstMove - Indicates if it's the piece's first move.
+   * @returns {WhitePiece} The created white chess piece.
+   * @throws {Error} If an unknown piece type is provided.
+   */
   public static make(type: Pieces, x: number, y: number, firstMove: boolean): WhitePiece {
     // console.log(`Creating White Piece: ${type}, x: ${x}, y: ${y}`);
     switch (type.toLowerCase()) {

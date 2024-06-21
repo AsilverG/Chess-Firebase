@@ -12,8 +12,10 @@ class Driver {
     setupEventListeners() {
         const createRoomButton = document.getElementById("create-room");
         const joinRoomButton = document.getElementById("join-room");
+        const leaveRoomButton = document.getElementById("leave-room");
         createRoomButton.addEventListener("click", () => this.createRoom());
         joinRoomButton.addEventListener("click", () => this.joinRoom());
+        leaveRoomButton.addEventListener("click", () => this.leaveRoom()); // Event listener for Leave Room button
         // Set up window unload event to handle disconnection
         window.addEventListener("beforeunload", () => this.leaveRoom());
     }
@@ -22,22 +24,16 @@ class Driver {
         this.roomId = Math.random().toString(36).substr(2, 9); // Generate a random room ID
         this.joinRoomAndStart(this.roomId, this.playerId, true);
         alert(`Room created with password: ${this.roomId}`);
-        document.getElementById('chess-board').style.display = 'block';
-        document.getElementById('create-room').style.display = 'none';
-        document.getElementById('room-password').style.display = 'none';
-        document.getElementById('join-room').style.display = 'none';
+        this.showGameControls(); // Show game controls after creating/joining room
     }
     // Allows user to join an existing room
     joinRoom() {
         const roomPasswordInput = document.getElementById("room-password");
         const roomId = roomPasswordInput.value;
         if (roomId) {
-            document.getElementById('chess-board').style.display = 'block';
-            document.getElementById('create-room').style.display = 'none';
-            document.getElementById('room-password').style.display = 'none';
-            document.getElementById('join-room').style.display = 'none';
             this.roomId = roomId;
             this.joinRoomAndStart(this.roomId, this.playerId, false);
+            this.showGameControls(); // Show game controls after creating/joining room
         }
         else {
             alert("Please enter a room password.");
@@ -65,11 +61,6 @@ class Driver {
             console.error(error);
         }
     }
-    listenForGameUpdates() {
-        FirebaseClient.instance.listenForGameUpdates(this.roomId, (data) => {
-            Game.instance.updateLocalGameState(data);
-        });
-    }
     // Allows the player to leave the room
     async leaveRoom() {
         const roomId = this.roomId;
@@ -78,7 +69,29 @@ class Driver {
             const playerRef = ref(FirebaseClient.instance.db, `rooms/${roomId}/players/${playerId}`);
             await remove(playerRef);
             console.log(`${playerId} removed from room ${roomId}`);
+            this.hideGameControls(); // Hide game controls after leaving room
         }
+    }
+    // Helper function to show game controls and hide join/create room buttons
+    showGameControls() {
+        document.getElementById('chess-board').style.display = 'block';
+        document.getElementById('create-room').style.display = 'none';
+        document.getElementById('room-password').style.display = 'none';
+        document.getElementById('join-room').style.display = 'none';
+        document.getElementById('leave-room').style.display = 'inline-block'; // Show Leave Room button
+    }
+    // Helper function to hide game controls and show join/create room buttons
+    hideGameControls() {
+        document.getElementById('chess-board').style.display = 'none';
+        document.getElementById('create-room').style.display = 'inline-block';
+        document.getElementById('room-password').style.display = 'inline-block';
+        document.getElementById('join-room').style.display = 'inline-block';
+        document.getElementById('leave-room').style.display = 'none'; // Hide Leave Room button
+    }
+    listenForGameUpdates() {
+        FirebaseClient.instance.listenForGameUpdates(this.roomId, (data) => {
+            Game.instance.updateLocalGameState(data);
+        });
     }
 }
 new Driver();
